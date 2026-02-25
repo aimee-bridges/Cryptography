@@ -41,3 +41,20 @@ def xor(a, b):
         result += str(int(bit_a) ^ int(bit_b))
     #return the resulting bit-string
     return result
+
+#Round Function
+#Fiestel round by XOR on right half with subkey
+def round_function_g (right, key):
+    #apply XOR between right half and round subkey
+    return xor (right, key)
+
+#Block function
+#Bg(x,y) = (y, x XOR g(y, key)) per Fiestel round
+def block_function(left, right, subkey):
+    #g_right using round function and subkey
+    g_right = round_function_g (right, subkey)
+    #return updated left half
+    return xor(left, g_right), right
+
+#Fiestel Cipher
+

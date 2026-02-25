@@ -21,3 +21,13 @@ def inverse_permutation_function(block: str) -> str:
                               block[inverse_IP[4]] + block[inverse_IP[5]] + block[inverse_IP[6]] + block[inverse_IP[7]])
     #Return inverse permuted block after IP-1
     return inverse_permuted_block
+
+#Switching Transformation
+#Swaps left and right of 8-bit block
+def switching_transformation(block: str) -> str:
+    #first 4 bits
+    left = block[:4]
+    #last 4 bits
+    right = block[4:]
+    #Return the block with halves swapped
+    transformed_block = right + left

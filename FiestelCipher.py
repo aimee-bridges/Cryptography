@@ -29,3 +29,15 @@ def switching_transformation(block):
     transformed_block = block[1] + block[0]
     #return block
     return transformed_block
+
+#XOR operation
+def xor(a, b):
+    #empty string for XOR results for each bit
+    result = ""
+    # Iteration of bits of input strings
+    for bit_a, bit_b in zip(a, b):
+        #convert bits to integers, apply bitwise XOR
+        #convert the result back to string and append to result
+        result += str(int(bit_a) ^ int(bit_b))
+    #return the resulting bit-string
+    return result

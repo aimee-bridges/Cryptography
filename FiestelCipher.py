@@ -76,3 +76,45 @@ key = ["1110", "0010"]
 
 print(feistel_cipher(plaintext_block, key))
 #Expected output: "00100011"
+
+#TASK 2: Permutation Testing
+#how changing the permutation (IP and IP-1) affect output
+
+def test_permutation_variation(block, key, IP, inverse_IP):
+    
+    #Apply a custom IP and IP-1, run a 2-round Feistel encryption using block_function & switching_transformation.
+    
+    #1. Apply custom initial permutation (IP)
+    permuted = "".join(block[i] for i in IP)
+
+    # 2. First block transformation using key[0]
+    left, right = permuted[:4], permuted[4:]
+    left, right = block_function(left, right, key[0])
+    block1 = left + right
+
+    # 3. Switching transformation (SW)
+    switched = switching_transformation(block1)
+
+    # 4. Second block transformation using key[1]
+    left, right = switched[:4], switched[4:]
+    left, right = block_function(left, right, key[1])
+    block2 = left + right
+
+    # 5. Apply custom inverse permutation (IP-1)
+    encrypted = "".join(block2[i] for i in inverse_IP)
+
+    # 6. Return the resulting ciphertext
+    return encrypted
+
+
+#TASK 2 Example
+# Define a new permutation and its inverse
+task2_IP = [2, 4, 6, 0, 1, 3, 5, 7]
+task2_inverse_IP = [3, 4, 0, 5, 1, 6, 2, 7]
+
+plaintext_block = "10101010"
+key = ["1110", "0010"]
+
+print("TASK 2 - Permutation Test:")
+print("Plaintext:", plaintext_block)
+print("Ciphertext with custom IP:", test_permutation_variation(plaintext_block, key, task2_IP, task2_inverse_IP))

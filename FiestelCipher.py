@@ -57,4 +57,19 @@ def block_function(left, right, subkey):
     return xor(left, g_right), right
 
 #Fiestel Cipher
-
+def feistel_cipher(block, key):
+    #1 Permutation IP
+    permuted_block = permutation_function(block)
+    #2 Block transformation with first subkey
+    left, right = permuted_block[:4], permuted_block[4:]
+    transformed_block1 = block_function(left, right, key[0])
+    #3 Switching transformation
+    switched_block = switching_transformation (transformed_block1)
+    #4 Block transformation with second subkey
+    left, right = switched_block[:4], switched_block[4:]
+    transformed_block2 = block_function(left, right, key[1])
+    #5 Inverse Permutation IP-1
+    transformed_block2 = transformed_block2[0] + transformed_block2[1]
+    encrypted_block = inverse_permutation_function(transformed_block2)
+    #return encrypted block
+    return encrypted_block

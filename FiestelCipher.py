@@ -118,3 +118,93 @@ key = ["1110", "0010"]
 print("TASK 2 - Permutation Test:")
 print("Plaintext:", plaintext_block)
 print("Ciphertext with custom IP:", test_permutation_variation(plaintext_block, key, task2_IP, task2_inverse_IP))
+
+#TASK 3: Block Transformation
+#how changing keys and the round functionaffects the ciphertext
+
+
+#3A – Key variation using the existing Feistel cipher
+def test_key_variation(block, key):
+    """
+    Use different round keys with the existing feistel_cipher
+    to see how the ciphertext changes.
+    """
+    return feistel_cipher(block, key)
+
+
+# ----- TASK 3A Example -----
+plaintext_block = "10101010"
+key_variant = ["0000", "1111"]
+
+print("\nTASK 3A - Key Variation Test:")
+print("Plaintext:", plaintext_block)
+print("Keys:", key_variant)
+print("Ciphertext:", test_key_variation(plaintext_block, key_variant))
+
+
+# 3B – Round function variation
+def test_round_function(block, key, custom_round_function):
+    """
+    Use a custom round function g instead of the default round_function_g
+    while keeping the Feistel structure the same.
+    """
+
+    # Local block function that uses the custom round function
+    def custom_block(left, right, subkey):
+        g_right = custom_round_function(right, subkey)
+        new_left = xor(left, g_right)
+        return new_left, right
+
+    #1. Initial permutation
+    permuted = permutation_function(block)
+
+    #2. First round with custom g
+    left, right = permuted[:4], permuted[4:]
+    left, right = custom_block(left, right, key[0])
+    block1 = left + right
+
+    #3. Switching transformation
+    switched = switching_transformation(block1)
+
+    #4. Second round with custom g
+    left, right = switched[:4], switched[4:]
+    left, right = custom_block(left, right, key[1])
+    block2 = left + right
+
+    #5. Inverse permutation
+    encrypted = inverse_permutation_function(block2)
+
+    return encrypted
+
+
+#Example custom round functions for experimentation
+
+def rotate_right(right, subkey):
+    """
+    Custom round function:
+    Rotate the 4-bit right half by 1 bit to the right.
+    Ignores the subkey (for demonstration).
+    """
+    return right[-1] + right[:-1]
+
+
+def invert_bits(right, subkey):
+    """
+    Custom round function:
+    Invert each bit in the right half (0 -> 1, 1 -> 0).
+    Ignores the subkey (for demonstration).
+    """
+    return "".join("1" if b == "0" else "0" for b in right)
+
+
+# ----- TASK 3B Examples -----
+plaintext_block = "10101010"
+key = ["1110", "0010"]
+
+print("\nTASK 3B - Round Function Variation (Rotate Right):")
+print("Plaintext:", plaintext_block)
+print("Ciphertext:", test_round_function(plaintext_block, key, rotate_right))
+
+print("\nTASK 3B - Round Function Variation (Invert Bits):")
+print("Plaintext:", plaintext_block)
+print("Ciphertext:", test_round_function(plaintext_block, key, invert_bits))

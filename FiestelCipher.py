@@ -69,3 +69,10 @@ def feistel_cipher(block, key):
     encrypted_block = inverse_permutation_function(transformed_block2)
 
     return encrypted_block
+
+#Test function
+plaintext_block = "10101010"
+key = ["1110", "0010"]
+
+print(feistel_cipher(plaintext_block, key))
+#Expected output: "00100011"

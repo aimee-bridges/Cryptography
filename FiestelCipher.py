@@ -208,3 +208,48 @@ print("Ciphertext:", test_round_function(plaintext_block, key, rotate_right))
 print("\nTASK 3B - Round Function Variation (Invert Bits):")
 print("Plaintext:", plaintext_block)
 print("Ciphertext:", test_round_function(plaintext_block, key, invert_bits))
+
+
+# TASK 4: Visualisation
+# This task prints the internal state of the block at each stage of Feistel cipher
+
+
+def feistel_cipher_visual(block, key):
+    #Visual version of feistel_cipher that prints the state after each major step
+    
+    print("\n--- TASK 4 VISUALISATION ---")
+    print("Input block:           ", block)
+
+    #1. Initial permutation
+    permuted_block = permutation_function(block)
+    print("After IP:              ", permuted_block)
+
+    #2. First block transformation (Bg1)
+    left, right = permuted_block[:4], permuted_block[4:]
+    left, right = block_function(left, right, key[0])
+    block1 = left + right
+    print("After Bg1:             ", block1)
+
+    #3. Switching transformation (SW)
+    switched_block = switching_transformation(block1)
+    print("After SW:              ", switched_block)
+
+    #4. Second block transformation (Bg2)
+    left, right = switched_block[:4], switched_block[4:]
+    left, right = block_function(left, right, key[1])
+    block2 = left + right
+    print("After Bg2:             ", block2)
+
+    #5. Inverse permutation
+    encrypted_block = inverse_permutation_function(block2)
+    print("After IP-1 (ciphertext)", encrypted_block)
+
+    return encrypted_block
+
+
+#TASK 4 Example
+plaintext_block = "10101010"
+key = ["1110", "0010"]
+
+print("\nTASK 4 - Visualisation Example:")
+feistel_cipher_visual(plaintext_block, key)

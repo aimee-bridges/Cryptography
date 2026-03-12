@@ -297,6 +297,145 @@ key = ["1110", "0010"]
 print("\nTASK 4 - Visualisation Example: ")
 feistel_cipher_visual(plaintext_block, key)
 
+
+#Feistel for variable block/key sizes & brute-force
+import itertools
+import time
+
+
+def permutation_function_general(block):
+    """General IP for even-length block: interleave right and left halves."""
+    L = len(block)
+    if L % 2 != 0:
+        raise ValueError("Block length must be even")
+    n = L // 2
+    IP = []
+    for i in range(n):
+        IP.append(n + i)
+        IP.append(i)
+    return "".join(block[i] for i in IP)
+
+
+def inverse_permutation_function_general(block):
+    L = len(block)
+    if L % 2 != 0:
+        raise ValueError("Block length must be even")
+    n = L // 2
+    IP = []
+    for i in range(n):
+        IP.append(n + i)
+        IP.append(i)
+    inverse = [0] * L
+    for i, src in enumerate(IP):
+        inverse[src] = i
+    return "".join(block[i] for i in inverse)
+
+
+def fit_subkey_to_half(subkey_bits, half_len):
+    #Pad with zeros to match half_len
+    if len(subkey_bits) < half_len:
+        return subkey_bits.ljust(half_len, '0')
+    return subkey_bits[:half_len]
+
+
+def feistel_cipher_general(block, keys):
+    #Feistel cipher for block and two subkeys
+
+    #Keys will be padded to match half the block size.
+    
+    L = len(block)
+    if L % 2 != 0:
+        raise ValueError("Block length must be even")
+    half = L // 2
+
+    #1) Initial permutation
+    permuted = permutation_function_general(block)
+
+    #2) First block transformation (Bg1)
+    left, right = permuted[:half], permuted[half:]
+    k0 = fit_subkey_to_half(keys[0], half)
+    left, right = block_function(left, right, k0)
+    block1 = left + right
+
+    #3) Switching
+    switched = switching_transformation(block1)
+
+    #4) Second block transformation (Bg2)
+    left, right = switched[:half], switched[half:]
+    k1 = fit_subkey_to_half(keys[1], half)
+    left, right = block_function(left, right, k1)
+    block2 = left + right
+
+    #5) Inverse permutation
+    encrypted = inverse_permutation_function_general(block2)
+    return encrypted
+
+
+def feistel_decipher_general(encrypted_block, keys):
+    L = len(encrypted_block)
+    if L % 2 != 0:
+        raise ValueError("Block length must be even")
+    half = L // 2
+
+    #1) Apply IP
+    temp = permutation_function_general(encrypted_block)
+
+    #2) Bg2 with k1
+    left, right = temp[:half], temp[half:]
+    k1 = fit_subkey_to_half(keys[1], half)
+    left, right = block_function(left, right, k1)
+    stage_after_bg2 = left + right
+
+    #3) SW
+    after_sw = switching_transformation(stage_after_bg2)
+
+    #4) Bg1 with k0
+    left, right = after_sw[:half], after_sw[half:]
+    k0 = fit_subkey_to_half(keys[0], half)
+    left, right = block_function(left, right, k0)
+    stage_before_ip = left + right
+
+    #5) IP-1
+    plaintext = inverse_permutation_function_general(stage_before_ip)
+    return plaintext
+
+
+def brute_force_attack_general(plaintext, ciphertext, subkey_bits):
+    #Brute-force all key pairs where subkey has subkey_bits
+
+    trials = 0
+    start = time.perf_counter()
+    for k0_bits in itertools.product('01', repeat=subkey_bits):
+        k0 = ''.join(k0_bits)
+        for k1_bits in itertools.product('01', repeat=subkey_bits):
+            k1 = ''.join(k1_bits)
+            trials += 1
+            keys = [k0, k1]
+            if feistel_cipher_general(plaintext, keys) == ciphertext:
+                elapsed = time.perf_counter() - start
+                return ([k0, k1], trials, elapsed)
+    elapsed = time.perf_counter() - start
+    return (None, trials, elapsed)
+
+
+def demo_scaling():
+    #Run brute-force measurements for subkey sizes 2..4
+    plaintext = '10101010'  # 8-bit example
+    print('\nBRUTE-FORCE example')
+    for bits in (2, 3, 4):
+        #choose deterministic keys and fit to half-block
+        k0 = '1' * bits
+        k1 = '0' * bits
+        #compute ciphertext using general cipher
+        ciphertext = feistel_cipher_general(plaintext, [k0, k1])
+        found, trials, elapsed = brute_force_attack_general(plaintext, ciphertext, bits)
+        print(f'subkey bits={bits}: trials={trials}, time={elapsed:.4f}s, found={found}')
+
+
+if __name__ == "__main__":
+    #run the short demo
+    demo_scaling()
+
 #Brute Force Script
 import itertools
 import time
@@ -332,6 +471,8 @@ def create_possible_subkeys(key_length):
     return all_possible_combinations
 
 #Example
+print("")
+print ("Brute Force Attack Example: ")
 plaintext = "10101010"
 ciphertext = feistel_cipher(plaintext, key)
 print (ciphertext)

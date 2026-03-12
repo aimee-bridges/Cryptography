@@ -296,3 +296,50 @@ key = ["1110", "0010"]
 
 print("\nTASK 4 - Visualisation Example: ")
 feistel_cipher_visual(plaintext_block, key)
+
+#Brute Force Script
+import itertools
+import time
+
+#Brute force function
+def feistel_cipher_crack(ciphertext):
+    #Brute force all possible keys
+    key_length = 4 #Assume 4-bit keys for simplicity
+    possible_keys = create_possible_subkeys (key_length)
+
+    start_time = time.time()
+
+    for key in possible_keys:
+        plaintext_attempt = feistel_decipher(ciphertext, key)
+
+        #Check if attempt produces orginal plaintext
+        if plaintext_attempt == plaintext:
+            print("plaintext attempt: ", plaintext_attempt)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            return key, elapsed_time
+    return None, None
+
+#Subkey creation function
+def create_possible_subkeys(key_length):
+    possible_subkey1 - [''.join(x) for x in itertools.product('01', repeat-key-length)]
+    possible_subkey2 - [''.join(x) for x in itertools.product('01', repeat-key-length)]
+    all_possible_combinations - []
+
+    for key1 in possible_subkey1:
+        for key2 in possible_subkey2:
+            all_possible_combinations.append ([key1, key2])
+    return all_possible_combinations]
+
+#Example
+plaintext = "10101010"
+ciphertext = feistel_cipher(plaintext, key)
+print (ciphertext)
+#Brute force attack
+cracked_key, elapsed_time = feistel_cipher_crack(ciphertext)
+
+if cracked_key:
+    print(f"Cracked Key:  {cracked_key}")
+    print(f"Elapsed Time: {elapsed_time} seconds")
+else:
+    print("Brute force attack unsuccessful")

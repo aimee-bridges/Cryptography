@@ -82,28 +82,28 @@ print(feistel_cipher(plaintext_block, key))
 
 def test_permutation_variation(block, key, IP, inverse_IP):
     
-    #Apply a custom IP and IP-1, run a 2-round Feistel encryption using block_function & switching_transformation.
+    #Apply a custom IP and IP-1, use block_function and switching_transformation
     
     #1. Apply custom initial permutation (IP)
     permuted = "".join(block[i] for i in IP)
 
-    # 2. First block transformation using key[0]
+    #2. First block transformation using key[0]
     left, right = permuted[:4], permuted[4:]
     left, right = block_function(left, right, key[0])
     block1 = left + right
 
-    # 3. Switching transformation (SW)
+    #3. Switching transformation (SW)
     switched = switching_transformation(block1)
 
-    # 4. Second block transformation using key[1]
+    #4. Second block transformation using key[1]
     left, right = switched[:4], switched[4:]
     left, right = block_function(left, right, key[1])
     block2 = left + right
 
-    # 5. Apply custom inverse permutation (IP-1)
+    #5. Apply custom inverse permutation (IP-1)
     encrypted = "".join(block2[i] for i in inverse_IP)
 
-    # 6. Return the resulting ciphertext
+    #6. Return the resulting ciphertext
     return encrypted
 
 
@@ -132,7 +132,7 @@ def test_key_variation(block, key):
     return feistel_cipher(block, key)
 
 
-# ----- TASK 3A Example -----
+#TASK 3A Example
 plaintext_block = "10101010"
 key_variant = ["0000", "1111"]
 
@@ -142,14 +142,14 @@ print("Keys:", key_variant)
 print("Ciphertext:", test_key_variation(plaintext_block, key_variant))
 
 
-# 3B – Round function variation
+#3B – Round function variation
 def test_round_function(block, key, custom_round_function):
     """
     Use a custom round function g instead of the default round_function_g
     while keeping the Feistel structure the same.
     """
 
-    # Local block function that uses the custom round function
+    #Local block function that uses the custom round function
     def custom_block(left, right, subkey):
         g_right = custom_round_function(right, subkey)
         new_left = xor(left, g_right)
@@ -197,7 +197,7 @@ def invert_bits(right, subkey):
     return "".join("1" if b == "0" else "0" for b in right)
 
 
-# ----- TASK 3B Examples -----
+#TASK 3B Examples
 plaintext_block = "10101010"
 key = ["1110", "0010"]
 
@@ -210,8 +210,8 @@ print("Plaintext:", plaintext_block)
 print("Ciphertext:", test_round_function(plaintext_block, key, invert_bits))
 
 
-# TASK 4: Visualisation
-# This task prints the internal state of the block at each stage of Feistel cipher
+#TASK 4: Visualisation
+#This task prints the internal state of the block at each stage of Feistel cipher
 
 
 def feistel_cipher_visual(block, key):
@@ -247,9 +247,52 @@ def feistel_cipher_visual(block, key):
     return encrypted_block
 
 
+def feistel_decipher(encrypted_block, key):
+    #Simple Feistel decryption following: D = IP-1 • Bg1 • SW • Bg2 • IP
+
+    #E = IP-1 • Bg2 • SW • Bg1 • IP
+
+    #Therefore to decrypt we apply (right-to-left): IP, Bg2 (with key[1]), SW, Bg1 (with key[0]),then IP-1.
+    
+    #1) Apply IP (the forward permutation) to the ciphertext
+    temp = permutation_function(encrypted_block)
+
+    # 2) Apply Bg2 with subkey key[1]
+    left, right = temp[:4], temp[4:]
+    left, right = block_function(left, right, key[1])
+    stage_after_bg2 = left + right
+
+    # 3) Apply switching transformation (SW)
+    after_sw = switching_transformation(stage_after_bg2)
+
+    # 4) Apply Bg1 with subkey key[0]
+    left, right = after_sw[:4], after_sw[4:]
+    left, right = block_function(left, right, key[0])
+    stage_before_ip = left + right
+
+    # 5) Apply inverse permutation (IP-1) to recover plaintext
+    plaintext = inverse_permutation_function(stage_before_ip)
+
+    return plaintext
+
+
+#encrypt/decrypt verification
+if __name__ == "__main__":
+    #Use plaintext and key in code
+    test_plain = "10101010"
+    test_key = ["1110", "0010"]
+    test_cipher = feistel_cipher(test_plain, test_key)
+    test_decrypted = feistel_decipher(test_cipher, test_key)
+
+    print("\nENCRYPT/DECRYPT TEST:")
+    print("Plaintext: ", test_plain)
+    print("Encrypted: ", test_cipher)
+    print("Decrypted: ", test_decrypted)
+    print("Match:     ", test_decrypted == test_plain)
+
 #TASK 4 Example
 plaintext_block = "10101010"
 key = ["1110", "0010"]
 
-print("\nTASK 4 - Visualisation Example:")
+print("\nTASK 4 - Visualisation Example: ")
 feistel_cipher_visual(plaintext_block, key)

@@ -322,14 +322,14 @@ def feistel_cipher_crack(ciphertext):
 
 #Subkey creation function
 def create_possible_subkeys(key_length):
-    possible_subkey1 - [''.join(x) for x in itertools.product('01', repeat-key-length)]
-    possible_subkey2 - [''.join(x) for x in itertools.product('01', repeat-key-length)]
-    all_possible_combinations - []
+    possible_subkey1 = [''.join(x) for x in itertools.product('01', repeat=key_length)]
+    possible_subkey2 = [''.join(x) for x in itertools.product('01', repeat=key_length)]
+    all_possible_combinations = []
 
     for key1 in possible_subkey1:
         for key2 in possible_subkey2:
-            all_possible_combinations.append ([key1, key2])
-    return all_possible_combinations]
+            all_possible_combinations.append([key1, key2])
+    return all_possible_combinations
 
 #Example
 plaintext = "10101010"

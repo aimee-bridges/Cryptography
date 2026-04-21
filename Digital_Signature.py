@@ -13,4 +13,7 @@ def generate_key_pair():
         key_size=2048
         backend=default_backend()
     )
-    
+
+    #Get public key
+    public_key = private_key.public_key()
+    return private_key, public_key

@@ -441,23 +441,23 @@ import itertools
 import time
 
 #Brute force function
-def feistel_cipher_crack(ciphertext):
-    #Brute force all possible keys
-    key_length = 4 #Assume 4-bit keys for simplicity
-    possible_keys = create_possible_subkeys (key_length)
+def feistel_cipher_crack(ciphertext, known_plaintext, key_length=4):
+    #Brute force all possible keys of given key_length (per subkey)
+    possible_keys = create_possible_subkeys(key_length)
 
     start_time = time.time()
 
     for key in possible_keys:
         plaintext_attempt = feistel_decipher(ciphertext, key)
 
-        #Check if attempt produces orginal plaintext
-        if plaintext_attempt == plaintext:
+        # Check if attempt produces the known plaintext
+        if plaintext_attempt == known_plaintext:
             print("plaintext attempt: ", plaintext_attempt)
-            end_time = time.time()
-            elapsed_time = end_time - start_time
+            elapsed_time = time.time() - start_time
             return key, elapsed_time
-    return None, None
+
+    elapsed_time = time.time() - start_time
+    return None, elapsed_time
 
 #Subkey creation function
 def create_possible_subkeys(key_length):
@@ -471,13 +471,12 @@ def create_possible_subkeys(key_length):
     return all_possible_combinations
 
 #Example
-print("")
 print ("Brute Force Attack Example: ")
 plaintext = "10101010"
 ciphertext = feistel_cipher(plaintext, key)
 print (ciphertext)
-#Brute force attack
-cracked_key, elapsed_time = feistel_cipher_crack(ciphertext)
+#Brute force attack (pass the known plaintext explicitly)
+cracked_key, elapsed_time = feistel_cipher_crack(ciphertext, plaintext, key_length=4)
 
 if cracked_key:
     print(f"Cracked Key:  {cracked_key}")

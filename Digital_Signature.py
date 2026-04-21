@@ -18,35 +18,35 @@ def generate_key_pair():
     public_key = private_key.public_key()
     return private_key, public_key
 
-#message sign function
-def sign_message(message, private_key):
-    #use private key to sign message
+#sign function — accepts raw bytes so it works for files as well as strings
+def sign_message(data, private_key):
+    #use private key to sign the data
     signature = private_key.sign(
-        message.encode('utf-8'),
+        data,
         padding.PSS(
-            mgf=padding.mGF1(hashes.SHA2566()),
+            mgf=padding.MGF1(hashes.SHA256()),
             salt_length=padding.PSS.MAX_LENGTH
         ),
         hashes.SHA256()
     )
     return signature
 
-#signature verify function with public key
-def verify_signature(message, signature, public_key):
+#verify function — returns True if valid, False if not
+def verify_signature(data, signature, public_key):
     try:
-        #use public key
+        #use public key to verify the signature over the same bytes
         public_key.verify(
             signature,
-            message.encode('utf-8'),
+            data,
             padding.PSS(
                 mgf=padding.MGF1(hashes.SHA256()),
                 salt_length=padding.PSS.MAX_LENGTH
             ),
             hashes.SHA256()
         )
-        print("Signature is valid")
-    except Exception as e:
-        print("Signature is invalid:", e)
+        return True
+    except Exception:
+        return False
 
 #Code testing
 
@@ -55,13 +55,18 @@ private_key, public_key = generate_key_pair()
 print("Private Key: ", private_key)
 print("Public Key: ", public_key)
 
-#Create signing message
-message = "This message is signed"
+#Create signing message — encoded to bytes because sign_message now expects bytes
+message = "This message is signed!".encode('utf-8')
 
 #Sign the message
 signature = sign_message(message, private_key)
 print("Signature: ", signature)
 
-#Verify signature
-verify_signature(message, signature, public_key)
 
+#Testing the signature validation
+#tampered message uses different message but same public key = invalid
+tampered_message = "This message should be invalid".encode('utf-8')
+print("This message should be invalid:", verify_signature(tampered_message, signature, public_key))
+
+#Verify signature of correct message
+print("This signature should be valid:", verify_signature(message, signature, public_key))

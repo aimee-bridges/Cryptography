@@ -72,11 +72,7 @@ def main():
         #verify signature
         verify_button = st.button("Verify Signature")
         if verify_button:
-            result = verify_signature(message, signature, public_key)
-            if result:
-                st.success("Signature is valid")
-            else:
-                st.error("Signature is invalid")
+            verify_signature(message, signature, public_key)
 
 if __name__ == "__main__":
     main()

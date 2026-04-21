@@ -36,6 +36,7 @@ def sign_message(message, private_key):
     return signature
 
 #streamlit prescription section
+
 #verify sig function for app
 def verify_signature(message, signature, public_key):
     try:
@@ -62,23 +63,39 @@ def main():
     #Generate key pair & stores in sesh
     if 'private_key' not in st.session_state:
             private_key, public_key = generate_key_pair()
+            #sets private & public in session state
             st.session_state['private_key'] = private_key
             st.session_state['public_key'] = public_key
+    #save keys so it is used in signature
+    private_key = st.session_state['private_key']
+    public_key = st.session_state['public_key']
 
 
     #input message
     message = st.text_input("Enter prescription message to sign: ")
 
     if message:
+         #Sign message button
+        sign = st.button("Sign Here")
+        if sign:
         #Sig message shows on page
-        signature = sign_message(message, private_key)
-        st.subheader("Signature: ")
-        st.text(signature)
+            signature = sign_message(message, private_key)
+            #stores sig in session state
+            st.session_state['signature'] = signature
+            st.subheader("Signature: ")
+            st.text(signature)
 
-        #verify signature
+
+        #verify signature button
         verify_button = st.button("Verify Signature")
         if verify_button:
-            verify_signature(message, signature, public_key)
+            #check sig is in session state
+            if 'signature' in st.session_state:
+                #checks message, sig, public key
+                verify_signature(message, st.session_state['signature'], public_key)
+            else:
+                #used warning toget user to sign instead of text
+                st.warning("Please sign the message first")
 
         
 if __name__ == "__main__":

@@ -4,6 +4,10 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
+import streamlit as st
+
+
+#Digital Signature section
 
 #Key generation function
 def generate_key_pair():
@@ -18,11 +22,11 @@ def generate_key_pair():
     public_key = private_key.public_key()
     return private_key, public_key
 
-#sign function — bytes accepted
-def sign_message(data, private_key):
-    #use private key to sign the data
+#sign function
+def sign_message(message, private_key):
+    #use private key to sign the encoded message
     signature = private_key.sign(
-        data,
+        message.encode('utf-8'),
         padding.PSS(
             mgf=padding.MGF1(hashes.SHA256()),
             salt_length=padding.PSS.MAX_LENGTH
@@ -31,13 +35,12 @@ def sign_message(data, private_key):
     )
     return signature
 
-#verify function — returns True if valid, False if not
-def verify_signature(data, signature, public_key):
+#verify function, True = valid, False = Invalid
+def verify_signature(message, signature, public_key):
     try:
-        #public key verifys sig with bytes
         public_key.verify(
             signature,
-            data,
+            message.encode('utf-8'),
             padding.PSS(
                 mgf=padding.MGF1(hashes.SHA256()),
                 salt_length=padding.PSS.MAX_LENGTH
@@ -48,43 +51,48 @@ def verify_signature(data, signature, public_key):
     except Exception:
         return False
 
-#Code testing
 
-#Key pair generate
-private_key, public_key = generate_key_pair()
-print("Private Key: ", private_key)
-print("Public Key: ", public_key)
+#Streamlit Prescription Section
+#main function builds app
+def main():
+    st.title("Digital Signature SafeCare Prescription App")
 
-#Create signing message — encoded bytes
-message = "This message is signed!".encode('utf-8')
+    #Generate the key pair
+    private_key, public_key = generate_key_pair()
 
-#Sign the message
-signature = sign_message(message, private_key)
-print("Signature: ", signature)
+    #input message
+    message = st.text_input("Enter prescription message to sign: ")
 
-#Message sig check
+    if message:
+        #Sign message
+        signature = sign_message(message, private_key)
+        st.subheader("Signature: ")
+        st.text(signature)
 
-#print messages
-print("Correct message matches the expected message to verify the signature so should be valid, however the wrong message doesn't match so should be invalid. ")
-wrong_message = "This message should not be valid".encode('utf-8')
-print("Wrong message: ", wrong_message)
-print("Correct message: ", message)
+        #verify signature
+        verify_button = st.button("Verify Signature")
+        if verify_button:
+            verify_signature(message, signature, public_key)
 
-#check wrong message to see if working properly - should be invalid
-wrong_results = verify_signature(wrong_message, signature, public_key)
-if wrong_results:
-    print("Wrong message should be invalid (False)")
-    print("Output: ", wrong_results)
-else:
-    print("Wrong message should be invalid (False)")
-    print("Output: ", wrong_results)
+if__name__ -- "__main__":
+    main()
 
-#check correct message - should be valid
-correct_results = verify_signature(message, signature, public_key)
-if correct_results==True:
-    print("Correct message should be valid (True)")
-    print("Output: ", correct_results)
-else:
-    print("Correct message should be valid (True)")
-    print("Output: ", correct_results)
+#change verify sig function for web app
+def verify_signature(message, signature, public_key):
+    try:
+        #verify sig with public key
+        public_key.verify(
+            signature,
+            message.encode('utf-8'),
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256()
+
+        )
+        st.subheader("Signature is valid")
+    except Exception as e:
+        st.subheader("Signature is invalid")
+
 

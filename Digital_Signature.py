@@ -57,3 +57,11 @@ print("Public Key: ", public_key)
 
 #Create signing message
 message = "This message is signed"
+
+#Sign the message
+signature = sign.message(message, private_key)
+print("Signature: ", signature)
+
+#Verify signature
+verify_signature(message, signature, public_key)
+

@@ -48,3 +48,12 @@ def verify_signature(message, signature, public_key):
     except Exception as e:
         print("Signature is invalid:", e)
 
+#Code testing
+
+#Key pair generate
+private_key, public_key = generate_key_pair()
+print("Private Key: ", private_key)
+print("Public Key: ", public_key)
+
+#Create signing message
+message = "This message is signed"

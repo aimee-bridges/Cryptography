@@ -18,7 +18,7 @@ def generate_key_pair():
     public_key = private_key.public_key()
     return private_key, public_key
 
-#sign function — accepts raw bytes so it works for files as well as strings
+#sign function — bytes accepted
 def sign_message(data, private_key):
     #use private key to sign the data
     signature = private_key.sign(
@@ -34,7 +34,7 @@ def sign_message(data, private_key):
 #verify function — returns True if valid, False if not
 def verify_signature(data, signature, public_key):
     try:
-        #use public key to verify the signature over the same bytes
+        #public key verifys sig with bytes
         public_key.verify(
             signature,
             data,
@@ -55,18 +55,36 @@ private_key, public_key = generate_key_pair()
 print("Private Key: ", private_key)
 print("Public Key: ", public_key)
 
-#Create signing message — encoded to bytes because sign_message now expects bytes
+#Create signing message — encoded bytes
 message = "This message is signed!".encode('utf-8')
 
 #Sign the message
 signature = sign_message(message, private_key)
 print("Signature: ", signature)
 
+#Message sig check
 
-#Testing the signature validation
-#tampered message uses different message but same public key = invalid
-tampered_message = "This message should be invalid".encode('utf-8')
-print("This message should be invalid:", verify_signature(tampered_message, signature, public_key))
+#print messages
+print("Correct message matches the expected message to verify the signature so should be valid, however the wrong message doesn't match so should be invalid. ")
+wrong_message = "This message should not be valid".encode('utf-8')
+print("Wrong message: ", wrong_message)
+print("Correct message: ", message)
 
-#Verify signature of correct message
-print("This signature should be valid:", verify_signature(message, signature, public_key))
+#check wrong message to see if working properly - should be invalid
+wrong_results = verify_signature(wrong_message, signature, public_key)
+if wrong_results:
+    print("Wrong message should be invalid (False)")
+    print("Output: ", wrong_results)
+else:
+    print("Wrong message should be invalid (False)")
+    print("Output: ", wrong_results)
+
+#check correct message - should be valid
+correct_results = verify_signature(message, signature, public_key)
+if correct_results==True:
+    print("Correct message should be valid (True)")
+    print("Output: ", correct_results)
+else:
+    print("Correct message should be valid (True)")
+    print("Output: ", correct_results)
+

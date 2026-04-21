@@ -10,7 +10,7 @@ def generate_key_pair():
     #generate the private key
     private_key = rsa.generate_private_key(
         public_exponent=65537,
-        key_size=2048
+        key_size=2048,
         backend=default_backend()
     )
 
@@ -39,7 +39,7 @@ def verify_signature(message, signature, public_key):
             signature,
             message.encode('utf-8'),
             padding.PSS(
-                mgf-padding.MGF1(hashes.SHA256()),
+                mgf=padding.MGF1(hashes.SHA256()),
                 salt_length=padding.PSS.MAX_LENGTH
             ),
             hashes.SHA256()
@@ -59,7 +59,7 @@ print("Public Key: ", public_key)
 message = "This message is signed"
 
 #Sign the message
-signature = sign.message(message, private_key)
+signature = sign_message(message, private_key)
 print("Signature: ", signature)
 
 #Verify signature

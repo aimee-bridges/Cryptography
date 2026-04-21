@@ -30,3 +30,21 @@ def sign_message(message, private_key):
         hashes.SHA256()
     )
     return signature
+
+#signature verify function with public key
+def verify_signature(message, signature, public_key):
+    try:
+        #use public key
+        public_key.verify(
+            signature,
+            message.encode('utf-8'),
+            padding.PSS(
+                mgf-padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256()
+        )
+        print("Signature is valid")
+    except Exception as e:
+        print("Signature is invalid:", e)
+

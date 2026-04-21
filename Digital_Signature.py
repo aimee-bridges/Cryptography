@@ -94,8 +94,7 @@ def main():
                 #checks message, sig, public key
                 verify_signature(message, st.session_state['signature'], public_key)
             else:
-                #used warning toget user to sign instead of text
-                st.warning("Please sign the message first")
+                st.text("Please sign the message first")
 
         
 if __name__ == "__main__":

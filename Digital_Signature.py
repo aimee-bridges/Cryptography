@@ -50,21 +50,27 @@ def verify_signature(message, signature, public_key):
             hashes.SHA256()
 
         )
+        #shows signature result
         st.subheader("Signature is valid")
     except Exception as e:
         st.subheader("Signature is invalid")
 
 #main function builds app
 def main():
+    #title of page
     st.title("Digital Signature SafeCare Prescription App")
-    #Generate the key pair
-    private_key, public_key = generate_key_pair()
+    #Generate key pair & stores in sesh
+    if 'private_key' not in st.session_state:
+            private_key, public_key = generate_key_pair()
+            st.session_state['private_key'] = private_key
+            st.session_state['public_key'] = public_key
+
 
     #input message
     message = st.text_input("Enter prescription message to sign: ")
 
     if message:
-        #Sign message
+        #Sig message shows on page
         signature = sign_message(message, private_key)
         st.subheader("Signature: ")
         st.text(signature)
@@ -74,6 +80,7 @@ def main():
         if verify_button:
             verify_signature(message, signature, public_key)
 
+        
 if __name__ == "__main__":
     main()
 

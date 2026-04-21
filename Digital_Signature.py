@@ -6,3 +6,11 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
 #Key generation function
+def generate_key_pair():
+    #generate the private key
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048
+        backend=default_backend()
+    )
+    
